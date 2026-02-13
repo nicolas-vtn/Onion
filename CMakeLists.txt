@@ -25,3 +25,4 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # ---- Subdirectories ----
 add_subdirectory(projects/helloword)
+add_subdirectory(libs/datetime)
