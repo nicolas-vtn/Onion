@@ -1,3 +1,7 @@
+cmake_minimum_required(VERSION 3.20)
+
+project(onion_helloword LANGUAGES CXX)
+
 add_executable(helloword
     main.cpp
 )

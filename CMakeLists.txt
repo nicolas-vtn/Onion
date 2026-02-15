@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 project(Onion
     VERSION 0.1.0
     DESCRIPTION "Onion Playground"
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 
 # ---- Global C++ standard ----
@@ -23,8 +23,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# ---- Subdirectories ----
-add_subdirectory(projects/helloword)
+# ---- External Libraries ----
+
+# ---- Internal Libraries ----
 add_subdirectory(libs/datetime)
 add_subdirectory(libs/event)
 add_subdirectory(libs/timer)
+
+# ---- Projects ----
+add_subdirectory(projects/helloword)
+add_subdirectory(projects/onion_voxel)
