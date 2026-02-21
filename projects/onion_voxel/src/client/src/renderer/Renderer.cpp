@@ -75,10 +75,13 @@ namespace onion::voxel
 			throw std::runtime_error("GLAD initialization failed");
 		}
 
+		// Register GLFW callbacks
+		RegisterCallbacks();
+
 		// Initialize Inputs Manager
-		//m_InputsManager.Init(m_Window);
-		//m_InputsManager.SetMouseCaptureEnabled(false);
-		//RegisterInputs();
+		m_InputsManager.Init(m_Window);
+		m_InputsManager.SetMouseCaptureEnabled(false);
+		RegisterInputs();
 	}
 
 	void Renderer::InitOpenGlState()
@@ -106,6 +109,9 @@ namespace onion::voxel
 
 		//InitAppleModel();
 
+		DemoPanel demoPanel("DemoPanel");
+		demoPanel.Initialize();
+
 		while (!st.stop_requested() && !glfwWindowShouldClose(m_Window))
 		{
 			// No GL calls needed; just clear to black if you like:
@@ -117,12 +123,15 @@ namespace onion::voxel
 			m_DeltaTime = currentFrame - m_LastFrame;
 			m_LastFrame = currentFrame;
 
-			//// Pool inputs
-			//m_InputsManager.PoolInputs();
-			//m_InputsSnapshot = m_InputsManager.GetInputsSnapshot();
+			GuiElement::SetScreenSize(m_WindowWidth, m_WindowHeight);
+			demoPanel.Render();
 
-			//// Process Global Inputs
-			//ProcessInputs(m_InputsSnapshot);
+			// Pool inputs
+			m_InputsManager.PoolInputs();
+			m_InputsSnapshot = m_InputsManager.GetInputsSnapshot();
+
+			// Process Global Inputs
+			ProcessInputs(m_InputsSnapshot);
 
 			//// Process Camera Movement
 			//ProcessCameraMovement(m_InputsSnapshot);
@@ -140,10 +149,57 @@ namespace onion::voxel
 			glfwPollEvents();
 		}
 
+		demoPanel.Delete();
+
 		// Cleanup
 		CleanupOpenGl();
 
 		m_IsRunning.store(false);
+	}
+
+	void Renderer::RegisterCallbacks()
+	{
+		glfwSetWindowUserPointer(m_Window, this);
+
+		glfwSetFramebufferSizeCallback(m_Window,
+									   [](GLFWwindow* window, int width, int height)
+									   {
+										   auto* instance = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
+
+										   if (instance)
+											   instance->FramebufferSizeCallback(width, height);
+									   });
+	}
+
+	void Renderer::FramebufferSizeCallback(int width, int height)
+	{
+		glViewport(0, 0, width, height);
+
+		m_WindowWidth = width;
+		m_WindowHeight = height;
+
+		GuiElement::SetScreenSize(m_WindowWidth, m_WindowHeight);
+	}
+
+	void Renderer::RegisterInputs()
+	{
+		m_InputIdUnfocus = m_InputsManager.RegisterInput(Key::Escape);
+		m_InputIdFocus = m_InputsManager.RegisterInput(Key::Space);
+	}
+
+	void Renderer::ProcessInputs(const std::shared_ptr<InputsSnapshot>& inputs)
+	{
+		if (inputs->GetKeyState(m_InputIdUnfocus).IsPressed && inputs->Mouse.CaptureEnabled)
+		{
+			m_InputsManager.SetMouseCaptureEnabled(false);
+		}
+
+		if (inputs->GetKeyState(m_InputIdFocus).IsPressed && !inputs->Mouse.CaptureEnabled)
+		{
+			m_InputsManager.SetMouseCaptureEnabled(true);
+		}
+
+		GuiElement::SetMousePosition(inputs->Mouse.Xpos, inputs->Mouse.Ypos);
 	}
 
 	void Renderer::CleanupOpenGl() {}

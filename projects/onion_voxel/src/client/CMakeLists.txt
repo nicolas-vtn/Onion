@@ -2,12 +2,19 @@ cmake_minimum_required(VERSION 3.20)
 
 project(onion_voxel_client LANGUAGES CXX)
 
+# Copy assets to build directory
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/../../assets" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 add_executable(onion_voxel
     "main.cpp"
     "src/Client.cpp"
 
 	"src/renderer/Renderer.cpp"
-)
+
+	"src/renderer/texture/Texture.cpp"
+	"src/renderer/texture/stb_image.cpp"
+	"src/renderer/shader/shader.cpp"
+ "src/renderer/inputs_manager/inputs.hpp" "src/renderer/inputs_manager/inputs_manager.cpp")
 
 target_link_libraries(onion_voxel
     PUBLIC
