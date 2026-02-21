@@ -70,6 +70,7 @@ namespace onion::voxel
 		m_ShaderSprites.Use();
 		m_ShaderSprites.setVec2("uPos", updatedPos.x, updatedPos.y);
 		m_ShaderSprites.setVec2("uSize", updatedSize.x, updatedSize.y);
+		m_ShaderSprites.setInt("uTexture", 0);
 
 		glActiveTexture(GL_TEXTURE0);
 		m_Texture.Bind();
@@ -77,6 +78,12 @@ namespace onion::voxel
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+
+		// Render text centered in the button
+		if (!m_Text.empty())
+		{
+			m_TextFont.RenderText(m_Text, 100, 200, 5.0f, {0.f, 1.f, 1.f});
+		}
 	}
 
 	void Button::Initialize()

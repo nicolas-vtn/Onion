@@ -13,6 +13,8 @@ namespace onion::voxel
 	Shader GuiElement::m_ShaderSprites((GetAssetsPath() / "shaders/sprite.vert").string().c_str(),
 									   (GetAssetsPath() / "shaders/sprite.frag").string().c_str());
 
+	Font GuiElement::m_TextFont{(GetAssetsPath() / "minecraft/textures/font/ascii.png").string(), 16, 16};
+
 	glm::mat4 GuiElement::m_ProjectionMatrix{1.0f};
 	int GuiElement::m_ScreenWidth = 800;
 	int GuiElement::m_ScreenHeight = 600;
@@ -54,6 +56,8 @@ namespace onion::voxel
 
 		m_ProjectionMatrix =
 			glm::ortho(0.0f, static_cast<float>(screenWidth), static_cast<float>(screenHeight), 0.0f, -1.0f, 1.0f);
+
+		Font::SetProjectionMatrix(m_ProjectionMatrix);
 
 		m_ShaderSprites.Use();
 		m_ShaderSprites.setMat4("uProjection", m_ProjectionMatrix);

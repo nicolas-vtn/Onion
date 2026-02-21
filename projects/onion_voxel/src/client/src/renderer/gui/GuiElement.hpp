@@ -9,12 +9,10 @@
 #include "../Variables.hpp"
 #include "../inputs_manager/inputs_manager.hpp"
 #include "../shader/shader.hpp"
+#include "font/font.hpp"
 
 namespace onion::voxel
 {
-	class Shader;
-	class InputsSnapshot;
-
 	class GuiElement
 	{
 	  public:
@@ -42,6 +40,9 @@ namespace onion::voxel
 		static int m_ScreenHeight;
 
 		static std::shared_ptr<InputsSnapshot> m_InputsSnapshot;
+
+	  protected:
+		static Font m_TextFont;
 
 	  private:
 		std::string m_Name;

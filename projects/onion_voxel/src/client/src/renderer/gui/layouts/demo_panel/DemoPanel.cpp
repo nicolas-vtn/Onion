@@ -7,6 +7,7 @@ namespace onion::voxel
 	{
 		m_Button.SetPosition(200, 50);
 		m_Button.SetSize({400.f, 40.f});
+		m_Button.SetText("Click me!");
 	}
 
 	void DemoPanel::Render()
@@ -16,6 +17,7 @@ namespace onion::voxel
 
 	void DemoPanel::Initialize()
 	{
+		GuiElement::m_TextFont.Load();
 		m_Button.Initialize();
 		SetInitState(true);
 	}
