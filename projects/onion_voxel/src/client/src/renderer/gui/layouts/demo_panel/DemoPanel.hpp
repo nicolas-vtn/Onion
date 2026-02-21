@@ -1,37 +1,23 @@
 #pragma once
 
 #include "../../GuiElement.hpp"
-
 #include "../../controls/button/Button.hpp"
 
 namespace onion::voxel
 {
+	class Button;
 
 	class DemoPanel : public GuiElement
 	{
 	  public:
-		DemoPanel(const std::string& name) : GuiElement(name)
-		{
-			m_Button.SetPosition(200, 50);
-			m_Button.SetSize({400, 40});
-			//m_Button.SetText("Demo Button");
-		};
-		void Render() const { m_Button.Render(); };
+		DemoPanel(const std::string& name);
+		~DemoPanel() override = default;
 
-	  public:
-		void Initialize()
-		{
-			m_Button.Initialize();
-			SetInitState(true);
-		};
-		void Delete()
-		{
-			m_Button.Delete();
-			SetDeletedState(true);
-		};
+		void Render() override;
+		void Initialize() override;
+		void Delete() override;
 
 	  private:
-		Button m_Button{"DemoButton"};
+		Button m_Button;
 	};
-
-}; // namespace onion::voxel
+} // namespace onion::voxel

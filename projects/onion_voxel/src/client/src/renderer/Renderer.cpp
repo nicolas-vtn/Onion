@@ -199,7 +199,7 @@ namespace onion::voxel
 			m_InputsManager.SetMouseCaptureEnabled(true);
 		}
 
-		GuiElement::SetMousePosition(inputs->Mouse.Xpos, inputs->Mouse.Ypos);
+		GuiElement::SetInputsSnapshot(inputs);
 	}
 
 	void Renderer::CleanupOpenGl() {}

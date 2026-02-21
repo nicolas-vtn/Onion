@@ -13,8 +13,17 @@ add_executable(onion_voxel
 
 	"src/renderer/texture/Texture.cpp"
 	"src/renderer/texture/stb_image.cpp"
+
 	"src/renderer/shader/shader.cpp"
- "src/renderer/inputs_manager/inputs.hpp" "src/renderer/inputs_manager/inputs_manager.cpp")
+
+	"src/renderer/inputs_manager/inputs.hpp"
+	"src/renderer/inputs_manager/inputs_manager.cpp"
+
+	"src/renderer/gui/GuiElement.cpp"
+	"src/renderer/gui/controls/button/Button.cpp"
+	"src/renderer/gui/layouts/demo_panel/DemoPanel.cpp"
+
+)
 
 target_link_libraries(onion_voxel
     PUBLIC
@@ -22,6 +31,7 @@ target_link_libraries(onion_voxel
         glad
         glm
         stb
+		onion_event
     PRIVATE
         onion_voxel_server
 )
