@@ -52,7 +52,7 @@ namespace onion::voxel
 		glm::vec2 m_Position{0, 0};
 		glm::vec2 m_Size{1, 1};
 
-		Texture m_Texture;
+		static Texture s_Texture;
 
 		struct Vertex
 		{
@@ -60,8 +60,8 @@ namespace onion::voxel
 			float texX, texY;
 		};
 
-		static std::vector<Vertex> m_Vertices;
-		static std::vector<unsigned int> m_Indices;
+		static std::vector<Vertex> s_Vertices;
+		static std::vector<unsigned int> s_Indices;
 
 		GLuint m_VAO = 0;
 		GLuint m_VBO = 0;

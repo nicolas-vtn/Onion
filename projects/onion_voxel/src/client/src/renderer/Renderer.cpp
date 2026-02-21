@@ -75,9 +75,6 @@ namespace onion::voxel
 			throw std::runtime_error("GLAD initialization failed");
 		}
 
-		// Register GLFW callbacks
-		RegisterCallbacks();
-
 		// Initialize Inputs Manager
 		m_InputsManager.Init(m_Window);
 		m_InputsManager.SetMouseCaptureEnabled(false);
@@ -107,14 +104,22 @@ namespace onion::voxel
 
 		InitOpenGlState();
 
-		//InitAppleModel();
+		Gui::Initialize();
+		GuiElement::SetScreenSize(m_WindowWidth, m_WindowHeight);
 
 		DemoPanel demoPanel("DemoPanel");
 		demoPanel.Initialize();
 
 		while (!st.stop_requested() && !glfwWindowShouldClose(m_Window))
 		{
-			// No GL calls needed; just clear to black if you like:
+			// Pool inputs
+			m_InputsManager.PoolInputs();
+			m_InputsSnapshot = m_InputsManager.GetInputsSnapshot();
+
+			// Process Global Inputs
+			ProcessInputs(m_InputsSnapshot);
+
+			// Clear
 			glClearColor(0.1f, 0.1f, 0.12f, 1.f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -123,15 +128,7 @@ namespace onion::voxel
 			m_DeltaTime = currentFrame - m_LastFrame;
 			m_LastFrame = currentFrame;
 
-			GuiElement::SetScreenSize(m_WindowWidth, m_WindowHeight);
 			demoPanel.Render();
-
-			// Pool inputs
-			m_InputsManager.PoolInputs();
-			m_InputsSnapshot = m_InputsManager.GetInputsSnapshot();
-
-			// Process Global Inputs
-			ProcessInputs(m_InputsSnapshot);
 
 			//// Process Camera Movement
 			//ProcessCameraMovement(m_InputsSnapshot);
@@ -153,22 +150,9 @@ namespace onion::voxel
 
 		// Cleanup
 		CleanupOpenGl();
+		Gui::Shutdown();
 
 		m_IsRunning.store(false);
-	}
-
-	void Renderer::RegisterCallbacks()
-	{
-		glfwSetWindowUserPointer(m_Window, this);
-
-		glfwSetFramebufferSizeCallback(m_Window,
-									   [](GLFWwindow* window, int width, int height)
-									   {
-										   auto* instance = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-
-										   if (instance)
-											   instance->FramebufferSizeCallback(width, height);
-									   });
 	}
 
 	void Renderer::FramebufferSizeCallback(int width, int height)
@@ -189,6 +173,11 @@ namespace onion::voxel
 
 	void Renderer::ProcessInputs(const std::shared_ptr<InputsSnapshot>& inputs)
 	{
+		if (inputs->Framebuffer.Resized)
+		{
+			FramebufferSizeCallback(inputs->Framebuffer.Width, inputs->Framebuffer.Height);
+		}
+
 		if (inputs->GetKeyState(m_InputIdUnfocus).IsPressed && inputs->Mouse.CaptureEnabled)
 		{
 			m_InputsManager.SetMouseCaptureEnabled(false);

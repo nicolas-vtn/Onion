@@ -10,9 +10,8 @@
 #include <string>
 #include <thread>
 
-#include "Variables.hpp"
+#include "gui/Gui.hpp"
 #include "inputs_manager/inputs_manager.hpp"
-#include "renderer/gui/layouts/demo_panel/DemoPanel.hpp"
 
 namespace onion::voxel
 {
@@ -42,10 +41,6 @@ namespace onion::voxel
 		int m_WindowWidth = 800;
 		int m_WindowHeight = 600;
 		std::string m_WindowTitle = "Onion Voxel";
-
-		// GLFW Event Callbacks
-	  private:
-		void RegisterCallbacks();
 
 		void FramebufferSizeCallback(int width, int height);
 

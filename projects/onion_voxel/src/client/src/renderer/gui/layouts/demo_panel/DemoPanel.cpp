@@ -17,7 +17,7 @@ namespace onion::voxel
 
 	void DemoPanel::Initialize()
 	{
-		GuiElement::m_TextFont.Load();
+		GuiElement::s_TextFont.Load();
 		m_Button.Initialize();
 		SetInitState(true);
 	}

@@ -2,23 +2,23 @@
 
 #include <iostream>
 
+#include "../../../Variables.hpp"
+
 namespace onion::voxel
 {
 
 	// -------- Static Data --------
 
-	std::vector<Button::Vertex> Button::m_Vertices = {
+	std::vector<Button::Vertex> Button::s_Vertices = {
 		{0.f, 0.f, 0.f, 0.f, 0.f}, {1.f, 0.f, 0.f, 1.f, 0.f}, {1.f, 1.f, 0.f, 1.f, 1.f}, {0.f, 1.f, 0.f, 0.f, 1.f}};
 
-	std::vector<unsigned int> Button::m_Indices = {0, 1, 2, 2, 3, 0};
+	std::vector<unsigned int> Button::s_Indices = {0, 1, 2, 2, 3, 0};
+
+	Texture Button::s_Texture((GetAssetsPath() / "minecraft/textures/gui/sprites/widget/button.png").string().c_str());
 
 	// -------- Constructor --------
 
-	Button::Button(const std::string& name)
-		: GuiElement(name),
-		  m_Texture((GetAssetsPath() / "minecraft/textures/gui/sprites/widget/button.png").string().c_str())
-	{
-	}
+	Button::Button(const std::string& name) : GuiElement(name) {}
 
 	Button::~Button() {}
 
@@ -26,63 +26,83 @@ namespace onion::voxel
 
 	void Button::Render()
 	{
-		glm::vec2 updatedSize = m_Size;
-		glm::vec2 updatedPos = m_Position;
+		if (!s_InputsSnapshot)
+		{
+			std::cerr << "Error: Button::Render() called without a valid InputsSnapshot." << std::endl;
+			return;
+		}
 
-		if (IsHovered())
+		bool isCurrentlyHovered = IsHovered();
+		bool isClicked = s_InputsSnapshot->Mouse.LeftButtonPressed;
+
+		// ----- Hover Logic -----
+		if (isCurrentlyHovered)
 		{
 			if (!m_WasHovered)
 			{
-				std::cout << "Button '" << GetName() << "' hovered!" << std::endl;
+				std::cout << "Button '" << GetName() << "' hovered." << std::endl;
 				OnHover.Trigger(*this);
 			}
-
-			float scaleFactor = 1.05f;
-			updatedSize *= scaleFactor;
-
-			glm::vec2 delta = updatedSize - m_Size;
-			updatedPos -= delta * 0.5f;
-
-			// Check if it's clicked
-			if (m_InputsSnapshot->Mouse.LeftButtonPressed && !m_WasClicked)
-			{
-				std::cout << "Button '" << GetName() << "' clicked!" << std::endl;
-				OnClick.Trigger(*this);
-				m_WasClicked = true;
-			}
-			else if (!m_InputsSnapshot->Mouse.LeftButtonPressed)
-			{
-				m_WasClicked = false;
-			}
-
-			m_WasHovered = true;
 		}
 		else
 		{
 			if (m_WasHovered)
 			{
-				std::cout << "Button '" << GetName() << "' unhovered!" << std::endl;
+				std::cout << "Button '" << GetName() << "' unhovered." << std::endl;
 				OnUnhover.Trigger(*this);
 			}
-			m_WasHovered = false;
 		}
 
-		m_ShaderSprites.Use();
-		m_ShaderSprites.setVec2("uPos", updatedPos.x, updatedPos.y);
-		m_ShaderSprites.setVec2("uSize", updatedSize.x, updatedSize.y);
-		m_ShaderSprites.setInt("uTexture", 0);
+		// ----- Click Logic -----
+		if (isCurrentlyHovered && !isClicked && m_WasClicked)
+		{
+			std::cout << "Button '" << GetName() << "' clicked." << std::endl;
+			OnClick.Trigger(*this);
+		}
+
+		// ----- Update States ----
+		m_WasHovered = isCurrentlyHovered;
+		m_WasClicked = isClicked;
+
+		float scaleFactor = 1.0f;
+
+		// ----- Scale Up on Hover -----
+		if (isCurrentlyHovered)
+			scaleFactor *= 1.05f;
+
+		// ----- Scale Down on Click -----
+		if (isCurrentlyHovered && isClicked)
+			scaleFactor *= 0.95f;
+
+		glm::vec2 updatedSize = m_Size * scaleFactor;
+		glm::vec2 delta = updatedSize - m_Size;
+		glm::vec2 updatedPos = m_Position - delta * 0.5f;
+
+		// ----- Render Button -----
+		s_ShaderSprites.Use();
+		s_ShaderSprites.setVec2("uPos", updatedPos.x, updatedPos.y);
+		s_ShaderSprites.setVec2("uSize", updatedSize.x, updatedSize.y);
 
 		glActiveTexture(GL_TEXTURE0);
-		m_Texture.Bind();
+		s_Texture.Bind();
 
 		glBindVertexArray(m_VAO);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(s_Indices.size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
-		// Render text centered in the button
+		// ----- Render Text -----
 		if (!m_Text.empty())
 		{
-			m_TextFont.RenderText(m_Text, 100, 200, 5.0f, {0.f, 1.f, 1.f});
+			float textScale = 3.5f;
+			textScale *= scaleFactor;
+
+			glm::vec2 textSize = s_TextFont.MeasureText(m_Text, textScale);
+
+			float textX = updatedPos.x + (updatedSize.x - textSize.x) * 0.5f;
+			float textY = updatedPos.y + (updatedSize.y - textSize.y) * 0.5f;
+
+			s_TextFont.RenderText(m_Text, textX + 1, textY + 1, textScale, {0.5f, 0.5f, 0.5f});
+			s_TextFont.RenderText(m_Text, textX, textY, textScale, {0.01f, 0.01f, 0.01f});
 		}
 	}
 
@@ -90,6 +110,10 @@ namespace onion::voxel
 	{
 		GenerateBuffers();
 		InitBuffers();
+
+		s_ShaderSprites.Use();
+		s_ShaderSprites.setInt("uTexture", 0);
+
 		SetInitState(true);
 	}
 
@@ -138,13 +162,13 @@ namespace onion::voxel
 
 	bool Button::IsHovered() const
 	{
-		if (!m_InputsSnapshot)
+		if (!s_InputsSnapshot)
 		{
 			return false;
 		}
 
-		int mouseX = m_InputsSnapshot->Mouse.Xpos;
-		int mouseY = m_InputsSnapshot->Mouse.Ypos;
+		int mouseX = s_InputsSnapshot->Mouse.Xpos;
+		int mouseY = s_InputsSnapshot->Mouse.Ypos;
 
 		bool hovered = mouseX >= m_Position.x && mouseX <= m_Position.x + m_Size.x && mouseY >= m_Position.y &&
 			mouseY <= m_Position.y + m_Size.y;
@@ -177,11 +201,11 @@ namespace onion::voxel
 		glBindVertexArray(m_VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-		glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), m_Vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, s_Vertices.size() * sizeof(Vertex), s_Vertices.data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 		glBufferData(
-			GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), m_Indices.data(), GL_STATIC_DRAW);
+			GL_ELEMENT_ARRAY_BUFFER, s_Indices.size() * sizeof(unsigned int), s_Indices.data(), GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, posX));
 		glEnableVertexAttribArray(0);

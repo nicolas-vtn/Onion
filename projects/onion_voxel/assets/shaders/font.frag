@@ -11,9 +11,8 @@ void main()
     vec4 sampled = texture(uTexture, TexCoord);
 
     // Use alpha from texture
-//    if (sampled.a < 0.1)
-//        discard;
+    if (sampled.a < 0.1)
+        discard;
 
-    //FragColor = vec4(uTextColor, sampled.a);
-    FragColor = vec4(sampled);
+    FragColor = vec4(uTextColor, sampled.a);
 }

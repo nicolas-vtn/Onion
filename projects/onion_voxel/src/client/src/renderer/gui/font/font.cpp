@@ -47,6 +47,10 @@ void Font::SetProjectionMatrix(const glm::mat4& projection)
 
 void Font::RenderText(const std::string& text, float x, float y, float scale, const glm::vec3& color)
 {
+	GLboolean depthTestEnabled = glIsEnabled(GL_DEPTH_TEST);
+	if (depthTestEnabled)
+		glDisable(GL_DEPTH_TEST);
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -108,13 +112,29 @@ void Font::RenderText(const std::string& text, float x, float y, float scale, co
 	m_TextureAtlas.Bind();
 
 	m_ShaderFont.Use();
-	glm::vec3 textColor{1, 0, 0};
-	m_ShaderFont.setVec3("uTextColor", textColor);
+	m_ShaderFont.setVec3("uTextColor", color);
 	m_ShaderFont.setInt("uTexture", 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_Vertices.size()));
 
 	glBindVertexArray(0);
+
+	if (depthTestEnabled)
+		glEnable(GL_DEPTH_TEST);
+}
+
+glm::vec2 Font::MeasureText(const std::string& text, float scale) const
+{
+	if (text.empty())
+		return {0.f, 0.f};
+
+	float glyphPixelWidth = (float) m_TextureAtlas.GetWidth() / m_AtlasCols;
+	float glyphPixelHeight = (float) m_TextureAtlas.GetHeight() / m_AtlasRows;
+
+	float width = glyphPixelWidth * scale * static_cast<float>(text.length());
+	float height = glyphPixelHeight * scale;
+
+	return {width, height};
 }
 
 // -------- OpenGL Buffer Setup --------

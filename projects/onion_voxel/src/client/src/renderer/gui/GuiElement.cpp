@@ -5,21 +5,23 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../Variables.hpp"
+
 namespace onion::voxel
 {
 
 	// -------- Static Member Definitions --------
 
-	Shader GuiElement::m_ShaderSprites((GetAssetsPath() / "shaders/sprite.vert").string().c_str(),
+	Shader GuiElement::s_ShaderSprites((GetAssetsPath() / "shaders/sprite.vert").string().c_str(),
 									   (GetAssetsPath() / "shaders/sprite.frag").string().c_str());
 
-	Font GuiElement::m_TextFont{(GetAssetsPath() / "minecraft/textures/font/ascii.png").string(), 16, 16};
+	Font GuiElement::s_TextFont{(GetAssetsPath() / "minecraft/textures/font/ascii.png").string(), 16, 16};
 
-	glm::mat4 GuiElement::m_ProjectionMatrix{1.0f};
-	int GuiElement::m_ScreenWidth = 800;
-	int GuiElement::m_ScreenHeight = 600;
+	glm::mat4 GuiElement::s_ProjectionMatrix{1.0f};
+	int GuiElement::s_ScreenWidth = 800;
+	int GuiElement::s_ScreenHeight = 600;
 
-	std::shared_ptr<InputsSnapshot> GuiElement::m_InputsSnapshot = nullptr;
+	std::shared_ptr<InputsSnapshot> GuiElement::s_InputsSnapshot = nullptr;
 
 	// -------- Constructor / Destructor --------
 
@@ -51,21 +53,31 @@ namespace onion::voxel
 
 	void GuiElement::SetScreenSize(int screenWidth, int screenHeight)
 	{
-		m_ScreenWidth = screenWidth;
-		m_ScreenHeight = screenHeight;
+		s_ScreenWidth = screenWidth;
+		s_ScreenHeight = screenHeight;
 
-		m_ProjectionMatrix =
+		s_ProjectionMatrix =
 			glm::ortho(0.0f, static_cast<float>(screenWidth), static_cast<float>(screenHeight), 0.0f, -1.0f, 1.0f);
 
-		Font::SetProjectionMatrix(m_ProjectionMatrix);
+		Font::SetProjectionMatrix(s_ProjectionMatrix);
 
-		m_ShaderSprites.Use();
-		m_ShaderSprites.setMat4("uProjection", m_ProjectionMatrix);
+		s_ShaderSprites.Use();
+		s_ShaderSprites.setMat4("uProjection", s_ProjectionMatrix);
 	}
 
 	void GuiElement::SetInputsSnapshot(std::shared_ptr<InputsSnapshot> inputsSnapshot)
 	{
-		m_InputsSnapshot = inputsSnapshot;
+		s_InputsSnapshot = inputsSnapshot;
+	}
+
+	void GuiElement::Load()
+	{
+		s_TextFont.Load();
+	}
+
+	void GuiElement::Unload()
+	{
+		s_TextFont.Unload();
 	}
 
 	// -------- Protected --------

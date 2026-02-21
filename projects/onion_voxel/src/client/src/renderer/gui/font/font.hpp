@@ -22,6 +22,7 @@ namespace onion::voxel
 		static void SetProjectionMatrix(const glm::mat4& projection);
 
 		void RenderText(const std::string& text, float x, float y, float scale, const glm::vec3& color);
+		glm::vec2 MeasureText(const std::string& text, float scale) const;
 
 	  private:
 		struct Vertex

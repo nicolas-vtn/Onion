@@ -6,7 +6,6 @@
 
 #include <glm/glm.hpp>
 
-#include "../Variables.hpp"
 #include "../inputs_manager/inputs_manager.hpp"
 #include "../shader/shader.hpp"
 #include "font/font.hpp"
@@ -29,20 +28,23 @@ namespace onion::voxel
 		static void SetScreenSize(int screenWidth, int screenHeight);
 		static void SetInputsSnapshot(std::shared_ptr<InputsSnapshot> inputsSnapshot);
 
+		static void Load();
+		static void Unload();
+
 	  protected:
 		void SetInitState(bool state);
 		void SetDeletedState(bool state);
 
 	  protected:
-		static Shader m_ShaderSprites;
-		static glm::mat4 m_ProjectionMatrix;
-		static int m_ScreenWidth;
-		static int m_ScreenHeight;
+		static Shader s_ShaderSprites;
+		static glm::mat4 s_ProjectionMatrix;
+		static int s_ScreenWidth;
+		static int s_ScreenHeight;
 
-		static std::shared_ptr<InputsSnapshot> m_InputsSnapshot;
+		static std::shared_ptr<InputsSnapshot> s_InputsSnapshot;
 
 	  protected:
-		static Font m_TextFont;
+		static Font s_TextFont;
 
 	  private:
 		std::string m_Name;
