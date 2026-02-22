@@ -33,6 +33,11 @@ namespace onion::voxel
 		void SetPosition(const glm::vec2& pos);
 		glm::vec2 GetPosition() const;
 
+		bool IsEnabled() const;
+		void SetEnabled(bool enabled);
+
+		void SetScaleUpOnHover(bool scaleUp);
+
 		// Events
 	  public:
 		Event<const Button&> OnClick;
@@ -48,11 +53,15 @@ namespace onion::voxel
 
 	  private:
 		std::string m_Text;
+		bool m_IsEnabled = true;
+		bool m_ScaleUpOnHover = true;
 
 		glm::vec2 m_Position{0, 0};
 		glm::vec2 m_Size{1, 1};
 
 		static Texture s_Texture;
+		static Texture s_TextureDisabled;
+		static Texture s_TextureHighlighted;
 
 		struct Vertex
 		{

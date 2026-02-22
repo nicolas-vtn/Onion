@@ -15,6 +15,10 @@ namespace onion::voxel
 	std::vector<unsigned int> Button::s_Indices = {0, 1, 2, 2, 3, 0};
 
 	Texture Button::s_Texture((GetAssetsPath() / "minecraft/textures/gui/sprites/widget/button.png").string().c_str());
+	Texture Button::s_TextureDisabled(
+		(GetAssetsPath() / "minecraft/textures/gui/sprites/widget/button_disabled.png").string().c_str());
+	Texture Button::s_TextureHighlighted(
+		(GetAssetsPath() / "minecraft/textures/gui/sprites/widget/button_highlighted.png").string().c_str());
 
 	// -------- Constructor --------
 
@@ -54,7 +58,7 @@ namespace onion::voxel
 		}
 
 		// ----- Click Logic -----
-		if (isCurrentlyHovered && !isClicked && m_WasClicked)
+		if (m_IsEnabled && isCurrentlyHovered && !isClicked && m_WasClicked)
 		{
 			std::cout << "Button '" << GetName() << "' clicked." << std::endl;
 			OnClick.Trigger(*this);
@@ -67,24 +71,37 @@ namespace onion::voxel
 		float scaleFactor = 1.0f;
 
 		// ----- Scale Up on Hover -----
-		if (isCurrentlyHovered)
+		if (m_IsEnabled && m_ScaleUpOnHover && isCurrentlyHovered)
 			scaleFactor *= 1.05f;
 
 		// ----- Scale Down on Click -----
-		if (isCurrentlyHovered && isClicked)
+		if (m_IsEnabled && isCurrentlyHovered && isClicked)
 			scaleFactor *= 0.95f;
 
 		glm::vec2 updatedSize = m_Size * scaleFactor;
-		glm::vec2 delta = updatedSize - m_Size;
-		glm::vec2 updatedPos = m_Position - delta * 0.5f;
+
+		glm::vec2 topLeft = m_Position - updatedSize * 0.5f;
 
 		// ----- Render Button -----
 		s_ShaderSprites.Use();
-		s_ShaderSprites.setVec2("uPos", updatedPos.x, updatedPos.y);
+		s_ShaderSprites.setVec2("uPos", topLeft.x, topLeft.y);
 		s_ShaderSprites.setVec2("uSize", updatedSize.x, updatedSize.y);
 
 		glActiveTexture(GL_TEXTURE0);
-		s_Texture.Bind();
+
+		// Bind correct texture based on state
+		if (!m_IsEnabled)
+		{
+			s_TextureDisabled.Bind();
+		}
+		else if (isCurrentlyHovered)
+		{
+			s_TextureHighlighted.Bind();
+		}
+		else
+		{
+			s_Texture.Bind();
+		}
 
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(s_Indices.size()), GL_UNSIGNED_INT, 0);
@@ -93,16 +110,18 @@ namespace onion::voxel
 		// ----- Render Text -----
 		if (!m_Text.empty())
 		{
-			float textScale = 3.5f;
+			float textScale = m_Size.y / 19.f;
 			textScale *= scaleFactor;
 
 			glm::vec2 textSize = s_TextFont.MeasureText(m_Text, textScale);
 
-			float textX = updatedPos.x + (updatedSize.x - textSize.x) * 0.5f;
-			float textY = updatedPos.y + (updatedSize.y - textSize.y) * 0.5f;
+			float textX = topLeft.x + (updatedSize.x - textSize.x) * 0.5f;
+			float textY = topLeft.y + (updatedSize.y - textSize.y) * 0.5f;
 
-			s_TextFont.RenderText(m_Text, textX + 1, textY + 1, textScale, {0.5f, 0.5f, 0.5f});
-			s_TextFont.RenderText(m_Text, textX, textY, textScale, {0.01f, 0.01f, 0.01f});
+			float shadowOffset = m_Size.y * 0.06f;
+			s_TextFont.RenderText(
+				m_Text, textX + shadowOffset, textY + shadowOffset, textScale, {0.247f, 0.247f, 0.247f});
+			s_TextFont.RenderText(m_Text, textX, textY, textScale, {1, 1, 1});
 		}
 	}
 
@@ -158,6 +177,21 @@ namespace onion::voxel
 		return m_Position;
 	}
 
+	bool Button::IsEnabled() const
+	{
+		return m_IsEnabled;
+	}
+
+	void Button::SetEnabled(bool enabled)
+	{
+		m_IsEnabled = enabled;
+	}
+
+	void Button::SetScaleUpOnHover(bool scaleUp)
+	{
+		m_ScaleUpOnHover = scaleUp;
+	}
+
 	// -------- Hover Logic --------
 
 	bool Button::IsHovered() const
@@ -170,8 +204,10 @@ namespace onion::voxel
 		int mouseX = s_InputsSnapshot->Mouse.Xpos;
 		int mouseY = s_InputsSnapshot->Mouse.Ypos;
 
-		bool hovered = mouseX >= m_Position.x && mouseX <= m_Position.x + m_Size.x && mouseY >= m_Position.y &&
-			mouseY <= m_Position.y + m_Size.y;
+		glm::vec2 topLeft = m_Position - (m_Size * 0.5f);
+
+		bool hovered = mouseX >= topLeft.x && mouseX <= topLeft.x + m_Size.x && mouseY >= topLeft.y &&
+			mouseY <= topLeft.y + m_Size.y;
 
 		return hovered;
 	}
