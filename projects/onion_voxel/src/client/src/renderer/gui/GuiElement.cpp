@@ -5,8 +5,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../Variables.hpp"
-
 namespace onion::voxel
 {
 

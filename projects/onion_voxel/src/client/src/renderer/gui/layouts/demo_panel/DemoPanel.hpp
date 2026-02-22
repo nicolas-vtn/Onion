@@ -20,5 +20,8 @@ namespace onion::voxel
 
 	  private:
 		Button m_Button;
+
+		std::string m_SpritePath = (GetAssetsPath() / "textures" / "OnionVoxelTitle.png").string();
+		Sprite m_Sprite;
 	};
 } // namespace onion::voxel

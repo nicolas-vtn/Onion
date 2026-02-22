@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 
+#include "../Variables.hpp"
 #include "../inputs_manager/inputs_manager.hpp"
 #include "../shader/shader.hpp"
 #include "font/font.hpp"

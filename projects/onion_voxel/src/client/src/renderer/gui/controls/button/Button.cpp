@@ -86,6 +86,7 @@ namespace onion::voxel
 		s_ShaderSprites.Use();
 		s_ShaderSprites.setVec2("uPos", topLeft.x, topLeft.y);
 		s_ShaderSprites.setVec2("uSize", updatedSize.x, updatedSize.y);
+		s_ShaderSprites.setInt("uTexture", 0);
 
 		glActiveTexture(GL_TEXTURE0);
 
@@ -129,9 +130,6 @@ namespace onion::voxel
 	{
 		GenerateBuffers();
 		InitBuffers();
-
-		s_ShaderSprites.Use();
-		s_ShaderSprites.setInt("uTexture", 0);
 
 		SetInitState(true);
 	}

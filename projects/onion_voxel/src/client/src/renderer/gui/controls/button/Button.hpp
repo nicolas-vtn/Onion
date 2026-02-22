@@ -14,15 +14,20 @@ namespace onion::voxel
 {
 	class Button : public GuiElement
 	{
+		// ----- Constructor / Destructor -----
 	  public:
 		Button(const std::string& name);
 		~Button();
 
+		// ----- Public API -----
+	  public:
 		void Render();
 
 		void Initialize();
 		void Delete();
 
+		// ----- Getters / Setters -----
+	  public:
 		void SetText(const std::string& text);
 		std::string GetText() const;
 
@@ -38,19 +43,17 @@ namespace onion::voxel
 
 		void SetScaleUpOnHover(bool scaleUp);
 
-		// Events
+		// ----- Events -----
 	  public:
 		Event<const Button&> OnClick;
 		Event<const Button&> OnHover;
 		Event<const Button&> OnUnhover;
 
+		// ----- Internal Helpers -----
 	  private:
 		bool IsHovered() const;
 
-		void GenerateBuffers();
-		void DeleteBuffers();
-		void InitBuffers();
-
+		// ----- Properties -----
 	  private:
 		std::string m_Text;
 		bool m_IsEnabled = true;
@@ -59,10 +62,14 @@ namespace onion::voxel
 		glm::vec2 m_Position{0, 0};
 		glm::vec2 m_Size{1, 1};
 
+		// ----- Textures -----
+	  private:
 		static Texture s_Texture;
 		static Texture s_TextureDisabled;
 		static Texture s_TextureHighlighted;
 
+		// ----- OPEN GL -----
+	  private:
 		struct Vertex
 		{
 			float posX, posY, posZ;
@@ -76,6 +83,11 @@ namespace onion::voxel
 		GLuint m_VBO = 0;
 		GLuint m_EBO = 0;
 
+		void GenerateBuffers();
+		void DeleteBuffers();
+		void InitBuffers();
+
+		// ----- Internal States -----
 		bool m_WasHovered = false;
 		bool m_WasClicked = false;
 	};
