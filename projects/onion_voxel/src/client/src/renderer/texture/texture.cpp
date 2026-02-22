@@ -4,6 +4,17 @@
 
 #include <glad/glad.h>
 
+namespace
+{
+	void FreePixels(unsigned char* ptr)
+	{
+		if (ptr)
+		{
+			stbi_image_free(ptr); // or delete[] ptr;
+		}
+	}
+} // namespace
+
 namespace onion::voxel
 {
 	Texture::Texture(const std::string& filePath)
@@ -123,6 +134,22 @@ namespace onion::voxel
 	{
 		glDeleteTextures(1, &m_TextureID);
 		m_TextureID = 0;
+	}
+
+	using PixelDeleter = void (*)(unsigned char*);
+	std::unique_ptr<unsigned char[], PixelDeleter> Texture::GetData() const
+	{
+		int width, height, nrChannels;
+		stbi_set_flip_vertically_on_load(false); // For OpenGL coordinate system
+		unsigned char* data = stbi_load(m_FilePath.c_str(), &width, &height, &nrChannels, 0);
+		if (!data)
+		{
+			// handle error
+			std::cout << "[TEXTURE] [ERROR] : Failed to load texture: " << m_FilePath << std::endl;
+			return {nullptr, FreePixels};
+		}
+
+		return std::unique_ptr<unsigned char[], PixelDeleter>(data, FreePixels);
 	}
 
 	unsigned int Texture::GetTextureID() const

@@ -23,7 +23,9 @@ add_executable(onion_voxel
 	"src/renderer/gui/controls/button/Button.cpp"
 	"src/renderer/gui/layouts/demo_panel/DemoPanel.cpp"
 
- "src/renderer/gui/font/font.cpp")
+	"src/renderer/gui/font/Font.cpp"
+	"src/renderer/gui/controls/sprite/Sprite.cpp"
+)
 
 target_link_libraries(onion_voxel
     PUBLIC

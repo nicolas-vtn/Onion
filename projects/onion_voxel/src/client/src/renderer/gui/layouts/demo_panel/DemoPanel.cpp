@@ -7,7 +7,7 @@ namespace onion::voxel
 	{
 		m_Button.SetPosition(0, 0);
 		m_Button.SetSize({400.f, 40.f});
-		m_Button.SetText("Cliiiick me!");
+		m_Button.SetText("Cliiiick me - gui player!");
 		m_Button.SetEnabled(true);
 		m_Button.SetScaleUpOnHover(false);
 	}

@@ -2,6 +2,7 @@
 
 #include "../../GuiElement.hpp"
 #include "../../controls/button/Button.hpp"
+#include "../../controls/sprite/Sprite.hpp"
 
 namespace onion::voxel
 {

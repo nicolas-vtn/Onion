@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
 #include <stb_image.h>
@@ -27,6 +28,11 @@ namespace onion::voxel
 		// ------------ DELETE ------------
 	  public:
 		void Delete();
+
+		// ------------ RETREVE TEXTURE DATA ------------
+	  public:
+		using PixelDeleter = void (*)(unsigned char*);
+		std::unique_ptr<unsigned char[], PixelDeleter> GetData() const;
 
 		// ------------ OPENGL ------------
 	  private:
